@@ -1,0 +1,7 @@
+.cproject
+.deps/
+.project
+bin/
+*~
+obj/
+
