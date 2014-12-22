@@ -3,22 +3,23 @@ src_dir = ./src
 obj_dir = ./obj
 bin_dir = ./bin
 dep_dir = .deps
-df = $(dep_dir)/$(obj_dir)/$(*F)
+df = $(dep_dir)/$<
 program_name = nicke_c
 sources = $(shell find $(src_dir) -name *.c)
-objects = $(patsubst $(src_dir)/%.c,$(obj_dir)/%.o,$(sources))
+objects = $(patsubst $(src_dir)/%.c,%.o,$(sources))
+VPATH = src
 
 $(program_name): $(objects) | $(bin_dir)
-	$(cc) $(objects) -o $(bin_dir)/$(program_name) 
+	$(cc) $(addprefix $(obj_dir)/,$(objects)) -o $(bin_dir)/$(program_name)
 
-$(obj_dir)/%.o : %.c | $(obj_dir) $(dep_dir)
-	@mkdir -p $(dep_dir)/$(@D)
-	$(cc) -MD -o $@ -c $<
+%.o : %.c | $(obj_dir) $(dep_dir)
+	@mkdir -p $(dep_dir)/$(<D)
+	$(cc) -MD -o $(obj_dir)/$@ -c $<
 	@cp $(obj_dir)/$(*F).d $(df).P
 	@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $(obj_dir)/$(*F).d >> $(df).P; \
+		-e '/^$$/ d' -e 's/$$/ :/' < $(obj_dir)/$(*F).d >> $(df).P;
 	@rm -f $(obj_dir)/$(*F).d
-	
+
 -include $(sources:%.c=$(dep_dir)/%.P)
 
 .PHONY : $(bin_dir)
@@ -34,5 +35,6 @@ $(dep_dir):
 	@mkdir -p $(dep_dir)
 
 .PHONY : clean
-clean : 
+clean :
 	rm -fr $(obj_dir) $(bin_dir) $(dep_dir)
+
