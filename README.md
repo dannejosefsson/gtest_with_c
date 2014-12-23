@@ -3,10 +3,10 @@ This project is a prototype of how gtest can be used to unit test C programs.
 The makefile downloads and compiles gtest 1.7.0 into a library and links it to the test program.
 
 ## Prerequsites
-make
-cmake
-gcc
-g++
+* make
+* cmake
+* gcc
+* g++
 
 ## How to use
 `make`, `make all`, and `make gtest_for_c` will create the original hello world program, called `gtest_for_c`.
