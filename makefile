@@ -21,7 +21,7 @@ $(program_name) : $(objects) | $(bin_dir)
 	$(cc) $(objects) -o $(bin_dir)/$@
 
 unit_test : defines :=$(defines) -D TESTING
-unit_test :$(test_objects) $(objects) | $(bin_dir)
+unit_test :$(test_objects) $(objects) | $(bin_dir) gtest
 	$(ccp) $(test_objects) -pthread -L$(lib_dir) -lgtest -o $(bin_dir)/$(program_name)_unit_test
 
 $(obj_dir)/%.cc.o : %.cc
@@ -40,3 +40,20 @@ $(bin_dir):
 clean :
 	rm -fr $(obj_dir) $(bin_dir) $(dep_dir)
 
+.PHONY : gtest
+gtest :
+# TODO: Should probably be moved to a library.mk or something. Probably split and robusted as well.
+ifeq ("$(wildcard $(lib_dir)/libgtest.a)","")
+	mkdir -p $(lib_hdr_dir)
+	mkdir -p $(lib_dir)/tmp
+	wget https://googletest.googlecode.com/files/gtest-1.7.0.zip --directory-prefix $(lib_dir)/tmp
+	unzip -o $(lib_dir)/tmp/gtest-1.7.0.zip -d $(lib_dir)/tmp
+	cd $(lib_dir)/tmp && rm -f CMakeCache.txt && cmake gtest-1.7.0 && $(MAKE);
+	rm -rf $(lib_hdr_dir)/gtest; mv $(lib_dir)/tmp/gtest-1.7.0/include/gtest $(lib_hdr_dir)/
+	mv $(lib_dir)/tmp/libgtest.a $(lib_dir)/
+	rm -rf $(lib_dir)/tmp
+endif
+
+.PHONY : clean_lib
+clean_lib :
+	rm -fr $(lib_dir)
