@@ -5,7 +5,7 @@ extern "C" {
 
 namespace testing {
 
-class MyAppTestSuite : public testing::Test
+class GtestForC : public testing::Test
 {
 	void SetUp(){
 	}
@@ -13,11 +13,11 @@ class MyAppTestSuite : public testing::Test
 	void TearDown(){}
 };
  
-TEST_F(MyAppTestSuite, basic_test_to_check_gtest) {
+TEST_F(GtestForC, basic_test_to_check_gtest) {
 	EXPECT_EQ(1, 1);
 }
 
-TEST_F(MyAppTestSuite, check_print) {
+TEST_F(GtestForC, check_hello_world_string_from_c) {
 	const char * kHelloString = printHello();
 	ASSERT_STREQ("Hello World!\n", kHelloString);
 }
