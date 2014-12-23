@@ -1,38 +1,40 @@
 cc = gcc
-src_dir = ./src
-obj_dir = ./obj
+ccp = c++
+src_dir = ./src/main
+hdr_dir = $(src_dir)/include
+tst_dir = ./src/test
+lib_dir = ./lib
+lib_hdr_dir = $(lib_dir)/include
+obj_dir = obj
 bin_dir = ./bin
 dep_dir = .deps
-df = $(dep_dir)/$<
 program_name = nicke_c
 sources = $(shell find $(src_dir) -name *.c)
-objects = $(patsubst $(src_dir)/%.c,%.o,$(sources))
-VPATH = src
+objects = $(patsubst %,$(obj_dir)/%.o,$(sources))
+test_sources = $(shell find $(tst_dir) -name *.cc)
+test_objects = $(patsubst %,$(obj_dir)/%.o,$(test_sources)) $(patsubst %,$(obj_dir)/%.test.o,$(sources))
+defines :=
 
-$(program_name): $(objects) | $(bin_dir)
-	$(cc) $(addprefix $(obj_dir)/,$(objects)) -o $(bin_dir)/$(program_name)
+all : $(program_name)
 
-%.o : %.c | $(obj_dir) $(dep_dir)
-	@mkdir -p $(dep_dir)/$(<D)
-	$(cc) -MD -o $(obj_dir)/$@ -c $<
-	@cp $(obj_dir)/$(*F).d $(df).P
-	@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $(obj_dir)/$(*F).d >> $(df).P;
-	@rm -f $(obj_dir)/$(*F).d
+$(program_name) : $(objects) | $(bin_dir)
+	$(cc) $(objects) -o $(bin_dir)/$@
 
--include $(sources:%.c=$(dep_dir)/%.P)
+unit_test : defines :=$(defines) -D TESTING
+unit_test :$(test_objects) $(objects) | $(bin_dir)
+	$(ccp) $(test_objects) -pthread -L$(lib_dir) -lgtest -o $(bin_dir)/$(program_name)_unit_test
+
+$(obj_dir)/%.cc.o : %.cc
+	@mkdir -p $(@D)
+	$(ccp) -Wall -MD -I./$(lib_hdr_dir) -I$(hdr_dir) $(defines) -o $@ -c $<
+
+$(obj_dir)/%.c.o $(obj_dir)/%.c.test.o : %.c
+	@mkdir -p $(@D)
+	$(cc) -Wall -MD -I$(hdr_dir) $(defines) -o $@ -c $<
 
 .PHONY : $(bin_dir)
 $(bin_dir):
 	@mkdir -p $(bin_dir)
-
-.PHONY : $(obj_dir)
-$(obj_dir):
-	@mkdir -p $(obj_dir)
-
-.PHONY : $(dep_dir)
-$(dep_dir):
-	@mkdir -p $(dep_dir)
 
 .PHONY : clean
 clean :
