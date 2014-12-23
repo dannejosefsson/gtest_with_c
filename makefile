@@ -21,7 +21,7 @@ $(program_name) : $(objects) | $(bin_dir)
 	$(cc) $(objects) -o $(bin_dir)/$@
 
 unit_test : defines :=$(defines) -D TESTING
-unit_test :$(test_objects) $(objects) | $(bin_dir) gtest
+unit_test : gtest $(test_objects) $(objects) | $(bin_dir)
 	$(ccp) $(test_objects) -pthread -L$(lib_dir) -lgtest -o $(bin_dir)/$(program_name)_unit_test
 
 $(obj_dir)/%.cc.o : %.cc
