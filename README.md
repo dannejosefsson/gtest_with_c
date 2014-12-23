@@ -1,4 +1,4 @@
-# Testing out gtest of C programs
+# Testing gtest on C programs
 This project is a prototype of how gtest can be used to unit test C programs.
 The makefile downloads and compiles gtest 1.7.0 into a library and links it to the test program.
 
